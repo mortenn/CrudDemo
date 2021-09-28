@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CrudDemo.Abstractions\CrudDemo.Abstractions.csproj" />
+    <ProjectReference Include="..\CrudDemo.Database\CrudDemo.Database.csproj" />
+    <ProjectReference Include="..\CrudDemo.Models\CrudDemo.Models.csproj" />
+		<ProjectReference Include="..\CrudDemo.APIGenerator\CrudDemo.APIGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+</Project>
