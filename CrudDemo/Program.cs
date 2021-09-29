@@ -1,8 +1,15 @@
 ﻿using CrudDemo;
+using CrudDemo.Database;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<DemoDbContext>(
+	options => options.UseSqlServer(
+		@"Server = (LocalDB)\MSSQLLocalDB; Integrated Security = true; Initial Catalog = HaproArchiveLocalDb; MultipleActiveResultSets = True;"
+	)
+);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var app = builder.Build();
