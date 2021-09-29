@@ -36,7 +36,7 @@ namespace CrudDemo.Generator
 					Name = type.Name,
 					FullName = type.GetFullMetadataName(),
 					DbContext = dbContextType,
-					Properties = properties.Select(prop => prop.Name).ToList()
+					Properties = properties.Where(prop => prop.Name != "Id").Select(prop => prop.Name).ToList()
 				});
 			}
 		}
