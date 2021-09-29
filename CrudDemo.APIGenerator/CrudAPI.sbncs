@@ -1,0 +1,77 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace {{ Namespace }}
+{
+	public static class CrudAPI
+	{
+		public static void WithAutoCRUD(this IEndpointRouteBuilder endpoint)
+		{
+			{{~ for model in Models ~}}
+			endpoint.MapGet(
+				"{{ model.Route }}/{{ model.Name }}s",
+				async ([FromServices] {{ model.DbContext }} dbContext) => Results.Ok(await dbContext.{{ model.Name }}s.ToListAsync())
+			);
+
+			endpoint.MapGet(
+				"{{ model.Route }}/{{ model.Name }}s/{{id}}",
+				async ([FromServices] {{ model.DbContext }} dbContext, int id) => Results.Ok(await dbContext.{{ model.Name }}s.FirstOrDefaultAsync(o => o.Id == id))
+			);
+
+			endpoint.MapPost(
+				"{{ model.Route }}/{{ model.Name }}s",
+				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content) =>
+				{
+					dbContext.{{ model.Name }}s.Add(content);
+					await dbContext.SaveChangesAsync();
+					return Results.Created("{{ model.Route }}/{{ model.Name }}s/{content.Id}", content);
+				}
+			);
+
+			endpoint.MapPost(
+				"{{ model.Route }}/{{ model.Name }}s/{{id}}",
+				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content, int id) =>
+				{
+					var state = await dbContext.{{ model.Name }}s.FindAsync(id);
+					UpdateModel(state, content);
+					if (!dbContext.ChangeTracker.HasChanges())
+					{
+						return Results.StatusCode(304);
+					}
+					await dbContext.SaveChangesAsync();
+					return Results.NoContent();
+				}
+			);
+
+			endpoint.MapDelete(
+				"{{ model.Route }}/{{ model.Name }}s/{{id}}",
+				async ([FromServices] {{ model.DbContext }} dbContext, int id) =>
+				{
+					var state = await dbContext.{{ model.Name }}s.FindAsync(id);
+					if (state == null)
+					{
+						return Results.NotFound();
+					}
+					dbContext.{{ model.Name }}s.Remove(state);
+					await dbContext.SaveChangesAsync();
+					return Results.StatusCode(205);
+				}
+			);
+			{{~ end ~}}
+		}
+
+		{{~ for model in Models ~}}
+		private static void UpdateModel({{ model.FullName }} state, {{ model.FullName }} content)
+		{
+			{{~ for property in model.Properties ~}}
+			if (state.{{ property }} != content.{{ property }})
+				state.{{ property }} = content.{{ property }};
+			{{~ end ~}}
+		}
+		{{~ end ~}}
+	}
+}
