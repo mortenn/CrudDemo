@@ -18,8 +18,12 @@ namespace {{ Namespace }}
 			);
 
 			endpoint.MapGet(
-				"{{ model.Route }}/{{ model.Name }}s/{{id}}",
-				async ([FromServices] {{ model.DbContext }} dbContext, int id) => Results.Ok(await dbContext.{{ model.Name }}s.FirstOrDefaultAsync(o => o.Id == id))
+				"{{ model.Route }}/{{ model.Name }}s/{id:int}",
+				async ([FromServices] {{ model.DbContext }} dbContext, int id) =>
+				{
+					var item = await dbContext.{{ model.Name }}s.FirstOrDefaultAsync(o => o.Id == id);
+					return item == null ? Results.NotFound() : Results.Ok(item);
+				}
 			);
 
 			endpoint.MapPost(
@@ -28,15 +32,19 @@ namespace {{ Namespace }}
 				{
 					dbContext.{{ model.Name }}s.Add(content);
 					await dbContext.SaveChangesAsync();
-					return Results.Created("{{ model.Route }}/{{ model.Name }}s/{content.Id}", content);
+					return Results.Created($"{{ model.Route }}/{{ model.Name }}s/{content.Id}", content);
 				}
 			);
 
 			endpoint.MapPost(
-				"{{ model.Route }}/{{ model.Name }}s/{{id}}",
+				"{{ model.Route }}/{{ model.Name }}s/{id:int}",
 				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content, int id) =>
 				{
 					var state = await dbContext.{{ model.Name }}s.FindAsync(id);
+					if (state == null)
+					{
+						return Results.NotFound();
+					}
 					UpdateModel(state, content);
 					if (!dbContext.ChangeTracker.HasChanges())
 					{
@@ -48,7 +56,7 @@ namespace {{ Namespace }}
 			);
 
 			endpoint.MapDelete(
-				"{{ model.Route }}/{{ model.Name }}s/{{id}}",
+				"{{ model.Route }}/{{ model.Name }}s/{id:int}",
 				async ([FromServices] {{ model.DbContext }} dbContext, int id) =>
 				{
 					var state = await dbContext.{{ model.Name }}s.FindAsync(id);
