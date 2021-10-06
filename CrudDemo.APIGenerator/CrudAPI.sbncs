@@ -1,3 +1,4 @@
+using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,33 +15,33 @@ namespace {{ Namespace }}
 			{{~ for model in Models ~}}
 			endpoint.MapGet(
 				"{{ model.Route }}/{{ model.Name }}s",
-				async ([FromServices] {{ model.DbContext }} dbContext) => Results.Ok(await dbContext.{{ model.Name }}s.ToListAsync())
+				async ([FromServices] {{ model.DbContext }} dbContext, CancellationToken cancellationToken) => Results.Ok(await dbContext.{{ model.Name }}s.ToListAsync(cancellationToken))
 			);
 
 			endpoint.MapGet(
 				"{{ model.Route }}/{{ model.Name }}s/{id:int}",
-				async ([FromServices] {{ model.DbContext }} dbContext, int id) =>
+				async ([FromServices] {{ model.DbContext }} dbContext, int id, CancellationToken cancellationToken) =>
 				{
-					var item = await dbContext.{{ model.Name }}s.FirstOrDefaultAsync(o => o.Id == id);
+					var item = await dbContext.{{ model.Name }}s.FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
 					return item == null ? Results.NotFound() : Results.Ok(item);
 				}
 			);
 
 			endpoint.MapPost(
 				"{{ model.Route }}/{{ model.Name }}s",
-				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content) =>
+				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content, CancellationToken cancellationToken) =>
 				{
-					dbContext.{{ model.Name }}s.Add(content);
-					await dbContext.SaveChangesAsync();
+					await dbContext.{{ model.Name }}s.AddAsync(content, cancellationToken);
+					await dbContext.SaveChangesAsync(cancellationToken);
 					return Results.Created($"{{ model.Route }}/{{ model.Name }}s/{content.Id}", content);
 				}
 			);
 
 			endpoint.MapPost(
 				"{{ model.Route }}/{{ model.Name }}s/{id:int}",
-				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content, int id) =>
+				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content, int id, CancellationToken cancellationToken) =>
 				{
-					var state = await dbContext.{{ model.Name }}s.FindAsync(id);
+					var state = await dbContext.{{ model.Name }}s.FindAsync(id, cancellationToken);
 					if (state == null)
 					{
 						return Results.NotFound();
@@ -50,22 +51,22 @@ namespace {{ Namespace }}
 					{
 						return Results.StatusCode(304);
 					}
-					await dbContext.SaveChangesAsync();
+					await dbContext.SaveChangesAsync(cancellationToken);
 					return Results.NoContent();
 				}
 			);
 
 			endpoint.MapDelete(
 				"{{ model.Route }}/{{ model.Name }}s/{id:int}",
-				async ([FromServices] {{ model.DbContext }} dbContext, int id) =>
+				async ([FromServices] {{ model.DbContext }} dbContext, int id, CancellationToken cancellationToken) =>
 				{
-					var state = await dbContext.{{ model.Name }}s.FindAsync(id);
+					var state = await dbContext.{{ model.Name }}s.FindAsync(id, cancellationToken);
 					if (state == null)
 					{
 						return Results.NotFound();
 					}
 					dbContext.{{ model.Name }}s.Remove(state);
-					await dbContext.SaveChangesAsync();
+					await dbContext.SaveChangesAsync(cancellationToken);
 					return Results.StatusCode(205);
 				}
 			);
