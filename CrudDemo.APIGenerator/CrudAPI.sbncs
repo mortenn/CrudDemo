@@ -37,7 +37,7 @@ namespace {{ Namespace }}
 				}
 			);
 
-			endpoint.MapPost(
+			endpoint.MapPut(
 				"{{ model.Route }}/{{ model.Name }}s/{id:int}",
 				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content, int id, CancellationToken cancellationToken) =>
 				{
