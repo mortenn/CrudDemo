@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -19,10 +20,10 @@ namespace {{ Namespace }}
 			);
 
 			endpoint.MapGet(
-				"{{ model.Route }}/{{ model.Name }}s/{id:int}",
-				async ([FromServices] {{ model.DbContext }} dbContext, int id, CancellationToken cancellationToken) =>
+				"{{ model.Route }}/{{ model.Name }}s/{{ model.RouteTemplateKey }}",
+				async ([FromServices] {{ model.DbContext }} dbContext, {{ model.RouteKeyArguments }}, CancellationToken cancellationToken) =>
 				{
-					var item = await dbContext.{{ model.Name }}s.FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
+					var item = await dbContext.{{ model.Name }}s.FindAsync(new object[]{ {{ model.KeyArgumentList }} }, cancellationToken);
 					return item == null ? Results.NotFound() : Results.Ok(item);
 				}
 			);
@@ -33,20 +34,25 @@ namespace {{ Namespace }}
 				{
 					await dbContext.{{ model.Name }}s.AddAsync(content, cancellationToken);
 					await dbContext.SaveChangesAsync(cancellationToken);
-					return Results.Created($"{{ model.Route }}/{{ model.Name }}s/{content.Id}", content);
+					return Results.Created($"{{ model.Route }}/{{ model.Name }}s/{{ model.ResourceCreatedPath }}", content);
 				}
 			);
 
 			endpoint.MapPut(
-				"{{ model.Route }}/{{ model.Name }}s/{id:int}",
-				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content, int id, CancellationToken cancellationToken) =>
+				"{{ model.Route }}/{{ model.Name }}s/{{ model.RouteTemplateKey }}",
+				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content, {{ model.RouteKeyArguments }}, CancellationToken cancellationToken) =>
 				{
-					var state = await dbContext.{{ model.Name }}s.FindAsync(id, cancellationToken);
+					var state = await dbContext.{{ model.Name }}s.FindAsync(new object[]{ {{ model.KeyArgumentList }} }, cancellationToken);
 					if (state == null)
 					{
 						return Results.NotFound();
 					}
-					UpdateModel(state, content);
+
+					{{~ for property in model.Properties ~}}
+					if (state.{{ property }} != content.{{ property }})
+						state.{{ property }} = content.{{ property }};
+					{{~ end ~}}
+
 					if (!dbContext.ChangeTracker.HasChanges())
 					{
 						return Results.StatusCode(304);
@@ -57,10 +63,10 @@ namespace {{ Namespace }}
 			);
 
 			endpoint.MapDelete(
-				"{{ model.Route }}/{{ model.Name }}s/{id:int}",
-				async ([FromServices] {{ model.DbContext }} dbContext, int id, CancellationToken cancellationToken) =>
+				"{{ model.Route }}/{{ model.Name }}s/{{ model.RouteTemplateKey }}",
+				async ([FromServices] {{ model.DbContext }} dbContext, {{ model.RouteKeyArguments }}, CancellationToken cancellationToken) =>
 				{
-					var state = await dbContext.{{ model.Name }}s.FindAsync(id, cancellationToken);
+					var state = await dbContext.{{ model.Name }}s.FindAsync(new object[]{ {{ model.KeyArgumentList }} }, cancellationToken);
 					if (state == null)
 					{
 						return Results.NotFound();
@@ -72,15 +78,5 @@ namespace {{ Namespace }}
 			);
 			{{~ end ~}}
 		}
-
-		{{~ for model in Models ~}}
-		private static void UpdateModel({{ model.FullName }} state, {{ model.FullName }} content)
-		{
-			{{~ for property in model.Properties ~}}
-			if (state.{{ property }} != content.{{ property }})
-				state.{{ property }} = content.{{ property }};
-			{{~ end ~}}
-		}
-		{{~ end ~}}
 	}
 }

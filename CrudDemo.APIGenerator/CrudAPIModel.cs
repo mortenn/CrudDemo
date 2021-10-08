@@ -2,6 +2,8 @@
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Xml;
 
 namespace CrudDemo.Generator
 {
@@ -28,7 +30,9 @@ namespace CrudDemo.Generator
 					));
 					return;
 				}
-				var properties = type.GetMembers().Where(m => m.Kind == SymbolKind.Property && !m.GetAttributes().Any(a => a.AttributeClass.Name == "Key"));
+
+				var key = type.GetMembers().Where(PropertyIsObjectKey);
+				var properties = type.GetMembers().Where(PropertyIsIncludedInModel);
 
 				Models.Add(new CrudAPIEndpointModel
 				{
@@ -36,12 +40,25 @@ namespace CrudDemo.Generator
 					Name = type.Name,
 					FullName = type.GetFullMetadataName(),
 					DbContext = dbContextType,
-					Properties = properties.Where(prop => prop.Name != "Id").Select(prop => prop.Name).ToList()
+					Key = key.ToDictionary(prop => prop.Name, prop => ((IPropertySymbol)prop).Type.Name),
+					Properties = properties.Select(prop => prop.Name).ToList()
 				});
 			}
 		}
 
 		public string Namespace { get; set; }
 		public List<CrudAPIEndpointModel> Models { get; set; }
+
+		private static bool PropertyIsObjectKey(ISymbol symbol)
+		{
+			return symbol.Kind == SymbolKind.Property
+				&& symbol.GetAttributes().Any(a => a.AttributeClass?.Name == "KeyAttribute");
+		}
+
+		private static bool PropertyIsIncludedInModel(ISymbol symbol)
+		{
+			return symbol.Kind == SymbolKind.Property
+				&& !symbol.GetAttributes().Any(a => a.AttributeClass?.Name == "JsonIgnoreAttribute");
+		}
 	}
 }
