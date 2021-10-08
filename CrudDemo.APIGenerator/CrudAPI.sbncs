@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +17,9 @@ namespace {{ Namespace }}
 			{{~ for model in Models ~}}
 			endpoint.MapGet(
 				"{{ model.Route }}/{{ model.Name }}s",
-				async ([FromServices] {{ model.DbContext }} dbContext, CancellationToken cancellationToken) => Results.Ok(await dbContext.{{ model.Name }}s.ToListAsync(cancellationToken))
+				async ([FromServices] {{ model.DbContext }} dbContext, CancellationToken cancellationToken) => Results.Ok(
+					(await dbContext.{{ model.Name }}s.ToListAsync(cancellationToken)).Select(MapToRecord)
+				)
 			);
 
 			endpoint.MapGet(
@@ -24,23 +27,29 @@ namespace {{ Namespace }}
 				async ([FromServices] {{ model.DbContext }} dbContext, {{ model.RouteKeyArguments }}, CancellationToken cancellationToken) =>
 				{
 					var item = await dbContext.{{ model.Name }}s.FindAsync(new object[]{ {{ model.KeyArgumentList }} }, cancellationToken);
-					return item == null ? Results.NotFound() : Results.Ok(item);
+					return item == null ? Results.NotFound() : Results.Ok(MapToRecord(item));
 				}
 			);
 
 			endpoint.MapPost(
 				"{{ model.Route }}/{{ model.Name }}s",
-				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content, CancellationToken cancellationToken) =>
+				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] Create{{ model.Name }}Record content, CancellationToken cancellationToken) =>
 				{
-					await dbContext.{{ model.Name }}s.AddAsync(content, cancellationToken);
+					var item = new {{ model.FullName }}
+					{
+						{{~ for property in model.Properties ~}}
+						{{ property.Key }} = content.{{ property.Key }},
+						{{~ end ~}}
+					};
+					await dbContext.{{ model.Name }}s.AddAsync(item, cancellationToken);
 					await dbContext.SaveChangesAsync(cancellationToken);
-					return Results.Created($"{{ model.Route }}/{{ model.Name }}s/{{ model.ResourceCreatedPath }}", content);
+					return Results.Created($"{{ model.Route }}/{{ model.Name }}s/{{ model.ResourceCreatedPath }}", item);
 				}
 			);
 
 			endpoint.MapPut(
 				"{{ model.Route }}/{{ model.Name }}s/{{ model.RouteTemplateKey }}",
-				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] {{ model.FullName }} content, {{ model.RouteKeyArguments }}, CancellationToken cancellationToken) =>
+				async ([FromServices] {{ model.DbContext }} dbContext, [FromBody] Update{{ model.Name }}Record content, {{ model.RouteKeyArguments }}, CancellationToken cancellationToken) =>
 				{
 					var state = await dbContext.{{ model.Name }}s.FindAsync(new object[]{ {{ model.KeyArgumentList }} }, cancellationToken);
 					if (state == null)
@@ -49,8 +58,8 @@ namespace {{ Namespace }}
 					}
 
 					{{~ for property in model.Properties ~}}
-					if (state.{{ property }} != content.{{ property }})
-						state.{{ property }} = content.{{ property }};
+					if (state.{{ property.Key }} != content.{{ property.Key }})
+						state.{{ property.Key }} = content.{{ property.Key }};
 					{{~ end ~}}
 
 					if (!dbContext.ChangeTracker.HasChanges())
@@ -78,5 +87,14 @@ namespace {{ Namespace }}
 			);
 			{{~ end ~}}
 		}
+
+		{{~ for model in Models ~}}
+		public record {{ model.Name }}Record({{ model.RecordKey }}, {{ model.RecordProperties }});
+		private static {{ model.Name }}Record MapToRecord({{ model.FullName }} item) => new {{ model.Name }}Record({{ model.RecordMap }});
+
+		public record Update{{ model.Name }}Record({{ model.RecordProperties }});
+		
+		public record Create{{ model.Name }}Record({{ model.RecordProperties }});
+		{{~ end ~}}
 	}
 }

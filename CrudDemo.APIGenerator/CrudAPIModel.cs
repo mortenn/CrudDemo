@@ -41,7 +41,7 @@ namespace CrudDemo.Generator
 					FullName = type.GetFullMetadataName(),
 					DbContext = dbContextType,
 					Key = key.ToDictionary(prop => prop.Name, prop => ((IPropertySymbol)prop).Type.Name),
-					Properties = properties.Select(prop => prop.Name).ToList()
+					Properties = properties.ToDictionary(prop => prop.Name, prop => ((IPropertySymbol)prop).Type.Name)
 				});
 			}
 		}
@@ -58,7 +58,7 @@ namespace CrudDemo.Generator
 		private static bool PropertyIsIncludedInModel(ISymbol symbol)
 		{
 			return symbol.Kind == SymbolKind.Property
-				&& !symbol.GetAttributes().Any(a => a.AttributeClass?.Name == "JsonIgnoreAttribute");
+				&& !symbol.GetAttributes().Any(a => a.AttributeClass?.Name == "KeyAttribute" || a.AttributeClass?.Name == "JsonIgnoreAttribute");
 		}
 	}
 }
