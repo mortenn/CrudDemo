@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DemoDbContext>(
 	options => options.UseSqlServer(
-		@"Server = (LocalDB)\MSSQLLocalDB; Integrated Security = true; Initial Catalog = HaproArchiveLocalDb; MultipleActiveResultSets = True;"
+		@"Server = (LocalDB)\MSSQLLocalDB; Integrated Security = true; Initial Catalog = DemoLocalDb; MultipleActiveResultSets = True;"
 	)
 );
 builder.Services.AddEndpointsApiExplorer();

@@ -14,6 +14,6 @@ namespace CrudDemo.DbContextGenerator
 			}
 		}
 
-		internal List<string> DbContexts = new List<string>();
+		internal List<string> DbContexts = new();
 	}
 }

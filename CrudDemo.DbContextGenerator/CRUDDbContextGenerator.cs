@@ -24,7 +24,7 @@ namespace CrudDemo.DbContextGenerator
 				return;
 			
 			context.ReportDiagnostic(Diagnostic.Create(
-				new DiagnosticDescriptor("CD01", "Generating DbContext", $"Automatically creating DbContext for entity types", "F1", DiagnosticSeverity.Info, true),
+				new DiagnosticDescriptor("CD01", "Generating DbContext", "Automatically creating DbContext for entity types", "F1", DiagnosticSeverity.Info, true),
 				null
 			));
 			try
@@ -65,7 +65,7 @@ namespace CrudDemo.DbContextGenerator
 					context.AddSource(model.Name, SourceText.From(output, Encoding.UTF8));
 				}
 			}
-			catch (Exception e)
+			catch (Exception? e)
 			{
 				while (e != null)
 				{

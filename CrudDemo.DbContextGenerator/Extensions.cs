@@ -26,7 +26,7 @@ namespace CrudDemo.DbContextGenerator
 
 		public static string GetFullMetadataName(this ISymbol s)
 		{
-			if (s == null || IsRootNamespace(s))
+			if (IsRootNamespace(s))
 			{
 				return string.Empty;
 			}

@@ -14,7 +14,6 @@ namespace CrudDemo.APIGenerator
 			Namespace = context.Compilation.AssemblyName!;
 			Models = new List<CrudAPIEndpointModel>();
 			var types = context.GetTypes().ToList();
-			var contexts = new Dictionary<string, List<ITypeSymbol>>();
 			foreach (var type in types)
 			{
 				var autoCrud = type.GetAttributes().FirstOrDefault(a => a.AttributeClass?.Name == nameof(AutoCrudAttribute));
