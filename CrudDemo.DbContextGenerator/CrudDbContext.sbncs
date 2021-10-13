@@ -1,0 +1,15 @@
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace {{ Namespace }}
+{
+	public class {{ Name }} : DbContext
+	{
+		public {{ Name }}(DbContextOptions options) : base(options) {}
+
+{{~ for entity in DbSets ~}}
+		public DbSet<{{ entity.Type }}> {{ entity.Name }} { get; set; }
+{{~ end ~}}
+	}
+}

@@ -1,10 +1,10 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using System.Text;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Scriban;
-using System;
-using System.Text;
 
-namespace CrudDemo.Generator
+namespace CrudDemo.APIGenerator
 {
 	[Generator]
 	internal class CRUDRegistrationGenerator : ISourceGenerator

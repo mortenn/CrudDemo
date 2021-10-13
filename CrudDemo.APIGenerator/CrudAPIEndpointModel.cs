@@ -1,18 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using JetBrains.Annotations;
 
-namespace CrudDemo.Generator
+namespace CrudDemo.APIGenerator
 {
+	[PublicAPI]
 	internal class CrudAPIEndpointModel
 	{
-		public string Route { get; internal set; }
-		public string Name { get; internal set; }
-		public string FullName { get; internal set; }
-		public string DbContext { get; internal set; }
-		public Dictionary<string, string> Key { get; set; }
-		public Dictionary<string, string> Properties { get; internal set; }
+		public CrudAPIEndpointModel(string route, string name, string fullName, string dbContext)
+		{
+			Route = route;
+			Name = name;
+			FullName = fullName;
+			DbContext = dbContext;
+			Key = new Dictionary<string, string>();
+			Properties = new Dictionary<string, string>();
+		}
+
+		public string Route { get; }
+		public string Name { get; }
+		public string FullName { get; }
+		public string DbContext { get; }
+		public Dictionary<string, string> Key { get; }
+		public Dictionary<string, string> Properties { get; }
 
 		public string RouteTemplateKey => string.Join("/", OrderedKey.Select(k => $"{{{k.Key}{RouteTypeMapper(k.Value)}}}"));
 

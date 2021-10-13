@@ -1,8 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Collections.Generic;
 
-namespace CrudDemo.Generator
+namespace CrudDemo.DbContextGenerator
 {
 	internal class DbContextFactoryReceiver : ISyntaxReceiver
 	{
@@ -10,10 +10,10 @@ namespace CrudDemo.Generator
 		{
 			if (syntaxNode is ClassDeclarationSyntax classSyntax && classSyntax.Identifier.Text.EndsWith("DbContextFactory"))
 			{
-				dbContexts.Add(classSyntax.Identifier.Text.Replace("DbContextFactory", string.Empty));
+				DbContexts.Add(classSyntax.Identifier.Text.Replace("DbContextFactory", string.Empty));
 			}
 		}
 
-		internal List<string> dbContexts = new List<string>();
+		internal List<string> DbContexts = new List<string>();
 	}
 }

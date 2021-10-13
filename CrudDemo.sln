@@ -9,11 +9,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrudDemo", "CrudDemo\CrudDe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrudDemo.Database", "CrudDemo.Database\CrudDemo.Database.csproj", "{B0C9869C-A864-4EB0-AE72-386E27F74704}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrudDemo.DbContextGenerator", "CrudDemo.Generator\CrudDemo.DbContextGenerator.csproj", "{0C3A2426-1EEC-4AC5-BEB7-66BDB1BB37C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrudDemo.DbContextGenerator", "CrudDemo.DbContextGenerator\CrudDemo.DbContextGenerator.csproj", "{0C3A2426-1EEC-4AC5-BEB7-66BDB1BB37C4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrudDemo.Abstractions", "CrudDemo.Abstractions\CrudDemo.Abstractions.csproj", "{BCCA72F4-6429-43AD-872F-D805651181A9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrudDemo.APIGenerator", "CrudDemo.APIGenerator\CrudDemo.APIGenerator.csproj", "{56780814-8273-4119-A33F-D2506A4C0C83}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", "{33343592-E228-4EA0-B5A1-6F110F89A06F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{17258073-681E-4C0F-992B-1374BADD5431}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +55,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0C3A2426-1EEC-4AC5-BEB7-66BDB1BB37C4} = {33343592-E228-4EA0-B5A1-6F110F89A06F}
+		{BCCA72F4-6429-43AD-872F-D805651181A9} = {33343592-E228-4EA0-B5A1-6F110F89A06F}
+		{56780814-8273-4119-A33F-D2506A4C0C83} = {33343592-E228-4EA0-B5A1-6F110F89A06F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D61F0FE7-72E8-4409-8341-32731FB6C0E5}

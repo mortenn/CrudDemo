@@ -1,17 +1,17 @@
-﻿using CrudDemo.Abstractions;
-using Microsoft.CodeAnalysis;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Xml;
+using CrudDemo.Abstractions;
+using JetBrains.Annotations;
+using Microsoft.CodeAnalysis;
 
-namespace CrudDemo.Generator
+namespace CrudDemo.APIGenerator
 {
+	[PublicAPI]
 	internal class CrudAPIModel
 	{
 		public CrudAPIModel(GeneratorExecutionContext context)
 		{
-			Namespace = context.Compilation.AssemblyName;
+			Namespace = context.Compilation.AssemblyName!;
 			Models = new List<CrudAPIEndpointModel>();
 			var types = context.GetTypes().ToList();
 			var contexts = new Dictionary<string, List<ITypeSymbol>>();
@@ -19,9 +19,9 @@ namespace CrudDemo.Generator
 			{
 				var autoCrud = type.GetAttributes().FirstOrDefault(a => a.AttributeClass?.Name == nameof(AutoCrudAttribute));
 				if (autoCrud == null) continue;
-				var route = (string)autoCrud.ConstructorArguments[0].Value;
-				var dbContext = (string)autoCrud.ConstructorArguments[1].Value + "DbContext";
-				var dbContextType = types.FirstOrDefault(t => t.Name == dbContext).GetFullMetadataName();
+				var route = (string)autoCrud.ConstructorArguments[0].Value!;
+				var dbContext = $"{autoCrud.ConstructorArguments[1].Value}DbContext";
+				var dbContextType = types.FirstOrDefault(t => t.Name == dbContext)?.GetFullMetadataName();
 				if (string.IsNullOrWhiteSpace(dbContextType))
 				{
 					context.ReportDiagnostic(Diagnostic.Create(
@@ -31,18 +31,17 @@ namespace CrudDemo.Generator
 					return;
 				}
 
-				var key = type.GetMembers().Where(PropertyIsObjectKey);
-				var properties = type.GetMembers().Where(PropertyIsIncludedInModel);
-
-				Models.Add(new CrudAPIEndpointModel
+				var model = new CrudAPIEndpointModel(route, type.Name, type.GetFullMetadataName(), dbContextType!);
+				var members = type.GetMembers();
+				foreach (var prop in members.Where(PropertyIsObjectKey))
 				{
-					Route = route,
-					Name = type.Name,
-					FullName = type.GetFullMetadataName(),
-					DbContext = dbContextType,
-					Key = key.ToDictionary(prop => prop.Name, prop => ((IPropertySymbol)prop).Type.Name),
-					Properties = properties.ToDictionary(prop => prop.Name, prop => ((IPropertySymbol)prop).Type.Name)
-				});
+					model.Key.Add(prop.Name, ((IPropertySymbol)prop).Type.Name);
+				}
+				foreach (var prop in members.Where(PropertyIsIncludedInModel))
+				{
+					model.Properties.Add(prop.Name, ((IPropertySymbol)prop).Type.Name);
+				}
+				Models.Add(model);
 			}
 		}
 

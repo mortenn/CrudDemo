@@ -89,12 +89,11 @@ namespace {{ Namespace }}
 		}
 
 		{{~ for model in Models ~}}
-		public record {{ model.Name }}Record({{ model.RecordKey }}, {{ model.RecordProperties }});
 		private static {{ model.Name }}Record MapToRecord({{ model.FullName }} item) => new {{ model.Name }}Record({{ model.RecordMap }});
-
+		public record {{ model.Name }}Record({{ model.RecordKey }}, {{ model.RecordProperties }});
 		public record Update{{ model.Name }}Record({{ model.RecordProperties }});
-		
 		public record Create{{ model.Name }}Record({{ model.RecordProperties }});
+
 		{{~ end ~}}
 	}
 }

@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace CrudDemo.APIGenerator
+namespace CrudDemo.DbContextGenerator
 {
 	public class ResourceReader
 	{

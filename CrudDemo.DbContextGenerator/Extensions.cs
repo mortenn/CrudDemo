@@ -1,11 +1,11 @@
-﻿using Microsoft.CodeAnalysis;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.CodeAnalysis;
 
-namespace CrudDemo.Generator
+namespace CrudDemo.DbContextGenerator
 {
-	internal static class Extensions
+	public static class Extensions
 	{
 		public static IEnumerable<ITypeSymbol> GetTypes(this GeneratorExecutionContext context)
 		{
@@ -56,7 +56,7 @@ namespace CrudDemo.Generator
 
 		private static bool IsRootNamespace(ISymbol symbol)
 		{
-			return symbol is INamespaceSymbol s && s.IsGlobalNamespace;
+			return symbol is INamespaceSymbol { IsGlobalNamespace: true };
 		}
 
 		private static IEnumerable<ITypeSymbol> GetAllTypes(INamespaceSymbol root)

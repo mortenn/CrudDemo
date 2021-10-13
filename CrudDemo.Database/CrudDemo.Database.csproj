@@ -16,7 +16,7 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CrudDemo.Generator\CrudDemo.DbContextGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\CrudDemo.DbContextGenerator\CrudDemo.DbContextGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\CrudDemo.Models\CrudDemo.Models.csproj" />
   </ItemGroup>
 
