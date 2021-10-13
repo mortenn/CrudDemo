@@ -11,8 +11,8 @@ namespace CrudDemo.Abstractions
 			DbContext = dbContext;
 		}
 
-		public string Route {  get; private set; }
+		public string Route {  get; }
 
-		public string DbContext { get; private set; }
+		public string DbContext { get; }
 	}
 }

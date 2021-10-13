@@ -31,7 +31,7 @@ namespace CrudDemo.APIGenerator
 				// add the file
 				context.AddSource("CrudAPI", SourceText.From(output, Encoding.UTF8));
 			}
-			catch (Exception e)
+			catch (Exception? e)
 			{
 				while (e != null)
 				{
